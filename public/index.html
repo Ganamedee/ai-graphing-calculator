@@ -1,64 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI-Powered Graphing Calculator</title>
-  <link rel="stylesheet" href="/css/styles.css">
-  <!-- Load libraries first -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/function-plot@1.22.7/dist/function-plot.js"></script>
-</head>
-<body>
-  <div class="app-container">
-    <!-- AI Chat Panel (Left) -->
-    <div class="ai-panel">
-      <div class="ai-header">
-        <h2>AI Scene Generator</h2>
-        <div class="model-selector">
-          <label for="model-select">Model:</label>
-          <select id="model-select">
-            <!-- Models will be loaded dynamically -->
-          </select>
-        </div>
-      </div>
-      <div class="chat-container">
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input-container">
-          <textarea id="scene-prompt" placeholder="Describe a scene to visualize (e.g., 'A sunset over mountains with a lake')"></textarea>
-          <button id="generate-btn">Generate</button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Graph Panel (Center) -->
-    <div class="graph-panel">
-      <div class="graph-controls">
-        <button id="zoom-in">+</button>
-        <button id="zoom-out">−</button>
-        <button id="reset-view">Reset</button>
-      </div>
-      <div id="graph-container"></div>
-    </div>
-    
-    <!-- Equation Panel (Right) -->
-    <div class="equation-panel">
-      <h2>Equations</h2>
-      <div id="equations-list"></div>
-      <div class="equation-input-container">
-        <input type="text" id="equation-input" placeholder="Enter an equation (e.g., y = x^2)">
-        <div class="equation-color-picker">
-          <label for="equation-color">Color:</label>
-          <input type="color" id="equation-color" value="#3366FF">
-        </div>
-        <button id="add-equation-btn">Add</button>
-      </div>
-    </div>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GraphAI</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 
-  <!-- Load our scripts - Make sure they load in the correct order -->
-  <script src="/js/graphing.js"></script>
-  <script src="/js/ai-integration.js"></script>
-  <script src="/js/app.js"></script>
-</body>
+    <!-- KaTeX for math formatting -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.js"></script>
+
+    <!-- Our CSS -->
+    <link rel="stylesheet" href="/css/styles.css" />
+
+    <!-- Math Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/function-plot@1.22.7/dist/function-plot.js"></script>
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- AI Chat Panel (Left) -->
+      <div class="ai-panel">
+        <div class="ai-header">
+          <h2>AI Scene Generator</h2>
+          <div class="model-selector">
+            <label for="model-select">Model:</label>
+            <select id="model-select">
+              <!-- Models will be loaded dynamically -->
+            </select>
+          </div>
+        </div>
+        <div class="chat-container">
+          <div id="chat-messages" class="chat-messages"></div>
+          <div class="chat-input-container">
+            <textarea
+              id="scene-prompt"
+              placeholder="Describe a scene to visualize (e.g., 'Mountains with a lake and sunset'). Press Enter to generate, Shift+Enter for new line."
+            ></textarea>
+            <button id="generate-btn">Generate Visualization</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graph Panel (Center) -->
+      <div class="graph-panel">
+        <div class="graph-controls">
+          <button id="zoom-in" title="Zoom In">+</button>
+          <button id="zoom-out" title="Zoom Out">−</button>
+          <button id="reset-view" title="Reset View">↺</button>
+        </div>
+        <div id="graph-container"></div>
+      </div>
+
+      <!-- Equation Panel (Right) -->
+      <div class="equation-panel">
+        <h2>Equations</h2>
+        <div id="equations-list"></div>
+        <div class="equation-input-container">
+          <input
+            type="text"
+            id="equation-input"
+            placeholder="Enter an equation (e.g., y = x²)"
+          />
+          <div class="equation-color-picker">
+            <label for="equation-color">Color:</label>
+            <input type="color" id="equation-color" value="#4361EE" />
+          </div>
+          <div class="equation-fill-option">
+            <input type="checkbox" id="equation-fill" />
+            <label for="equation-fill">Fill area</label>
+          </div>
+          <button id="add-equation-btn">Add Equation</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Custom Scripts -->
+    <script src="/js/graphing.js"></script>
+    <script src="/js/ai-integration.js"></script>
+    <script src="/js/keyboard-shortcuts.js"></script>
+    <script src="/js/equation-formatting.js"></script>
+    <script src="/js/resizable-panels.js"></script>
+    <script src="/js/app.js"></script>
+  </body>
 </html>

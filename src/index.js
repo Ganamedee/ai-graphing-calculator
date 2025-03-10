@@ -11,7 +11,9 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(
+  express.static(path.join(__dirname, process.env.VERCEL ? "." : "../public"))
+);
 
 // Debug routes
 app.use((req, res, next) => {

@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "An interactive graphing calculator with AI integration",
   "main": "src/index.js",
+  "engines": {
+    "node": ">=18.x"
+  },
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "build": "echo 'Build step completed'"
   },
   "dependencies": {
     "@azure-rest/ai-inference": "^1.0.0-beta.5",

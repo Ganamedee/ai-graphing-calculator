@@ -691,8 +691,8 @@ input[type="color"] {
 }
 
 .function-plot .grid .tick line {
-  stroke: rgba(0, 0, 0, 0.05);
-  stroke-width: 1px;
+  stroke: rgba(0, 0, 0, 0.1);
+  stroke-width: 1.5px;
 }
 /* Panel transitions */
 .ai-panel,
@@ -718,13 +718,14 @@ link[rel="icon"] {
 }
 
 .function-plot .axis path {
-  stroke-width: 1px;
+  stroke-width: 1.5px;
   stroke: var(--border-color);
 }
 
 .function-plot .axis .tick line {
   stroke: var(--border-color);
-  opacity: 0.5;
+  opacity: 0.7;
+  stroke-width: 1.5px;
 }
 
 .function-plot .axis .tick text {
@@ -744,4 +745,75 @@ link[rel="icon"] {
 .katex-display .katex .amsmath {
   max-width: 100%;
   overflow-x: auto;
+}
+
+/* Line thickness slider styles */
+.equation-thickness-control {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.equation-thickness-control label {
+  margin-right: 0.7rem;
+  font-weight: 500;
+}
+
+.thickness-slider {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border-color);
+  outline: none;
+  -webkit-appearance: none;
+  margin-right: 10px;
+}
+
+.thickness-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.thickness-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.thickness-slider:hover::-webkit-slider-thumb {
+  background: var(--primary-dark);
+  transform: scale(1.1);
+}
+
+.thickness-slider:hover::-moz-range-thumb {
+  background: var(--primary-dark);
+  transform: scale(1.1);
+}
+
+.thickness-value {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Styles for edit mode thickness slider */
+.equation-edit-thickness {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.equation-edit-thickness label {
+  margin-right: 8px;
+  font-size: 0.9rem;
 }

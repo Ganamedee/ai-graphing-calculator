@@ -326,6 +326,7 @@ class AIAssistant {
 
   // Updated applyEquationsToGraph method
   // Updated applyEquationsToGraph method to use simpler approach without conditionals
+  // Updated applyEquationsToGraph method
   applyEquationsToGraph(equationsData) {
     if (!window.calculator) {
       console.error("Calculator not available");
@@ -374,7 +375,23 @@ class AIAssistant {
           expression = expression.replace(/abs\s+\(/g, "abs(");
 
           // Add equation - use fixedToViewport=false for AI equations
-          window.calculator.addEquation(expression, eq.color, eq.fill, false);
+          // Use a default thickness based on the equation's role
+          let thickness = 2; // Default thickness
+
+          // Make background elements thinner, foreground elements thicker
+          if (index < equations.length / 3) {
+            thickness = 1.5; // Thinner for background elements
+          } else if (index > (equations.length * 2) / 3) {
+            thickness = 3; // Thicker for foreground elements
+          }
+
+          window.calculator.addEquation(
+            expression,
+            eq.color,
+            eq.fill,
+            false,
+            thickness
+          );
         } catch (eqError) {
           console.error(`Error adding equation ${index}:`, eqError);
         }

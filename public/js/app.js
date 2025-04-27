@@ -1,3 +1,4 @@
+// File: public/js/app.js
 // Main application initialization
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("App initializing with fixes for viewport binding...");
@@ -24,7 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     equationsList.innerHTML = "";
 
     equations.forEach((eq) => {
-      addEquationToList(eq.id, eq.text, eq.color, eq.fill);
+      addEquationToList(eq.id, eq.text, eq.color, eq.fill, eq.thickness || 2);
     });
   };
 
@@ -51,6 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const equationInput = document.getElementById("equation-input");
         const colorInput = document.getElementById("equation-color");
         const fillCheckbox = document.getElementById("equation-fill");
+        const thicknessInput = document.getElementById("equation-thickness");
 
         if (equationInput.value.trim()) {
           try {
@@ -59,13 +61,15 @@ document.addEventListener("DOMContentLoaded", async () => {
               equationInput.value,
               colorInput.value,
               fillCheckbox.checked,
-              true // fixedToViewport = true
+              true, // fixedToViewport = true
+              parseInt(thicknessInput.value) // Add thickness parameter
             );
             addEquationToList(
               id,
               equationInput.value,
               colorInput.value,
-              fillCheckbox.checked
+              fillCheckbox.checked,
+              parseInt(thicknessInput.value)
             );
             equationInput.value = "";
           } catch (error) {
@@ -75,6 +79,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     } else {
       console.error("Add equation button not found");
+    }
+
+    // Add thickness slider value display update
+    const thicknessSlider = document.getElementById("equation-thickness");
+    const thicknessValue = document.querySelector(".thickness-value");
+    if (thicknessSlider && thicknessValue) {
+      thicknessSlider.addEventListener("input", function () {
+        thicknessValue.textContent = this.value;
+      });
     }
 
     // Allow pressing Enter in equation input
@@ -121,7 +134,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Function to add an equation to the list
-    function addEquationToList(id, text, color, fill = false) {
+    function addEquationToList(id, text, color, fill = false, thickness = 2) {
       const equationsList = document.getElementById("equations-list");
       if (!equationsList) {
         console.error("Equations list element not found");
@@ -131,6 +144,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const equationItem = document.createElement("div");
       equationItem.className = "equation-item";
       equationItem.dataset.id = id;
+      equationItem.dataset.thickness = thickness; // Store thickness in dataset
 
       const equationText = document.createElement("div");
       equationText.className = "equation-text";
@@ -213,6 +227,32 @@ document.addEventListener("DOMContentLoaded", async () => {
       colorPicker.className = "equation-edit-color";
       colorPicker.value = equation.color;
 
+      // Create thickness slider
+      const thicknessDiv = document.createElement("div");
+      thicknessDiv.className = "equation-edit-thickness";
+
+      const thicknessLabel = document.createElement("label");
+      thicknessLabel.textContent = "Thickness:";
+
+      const thicknessSlider = document.createElement("input");
+      thicknessSlider.type = "range";
+      thicknessSlider.min = "1";
+      thicknessSlider.max = "10";
+      thicknessSlider.value = equation.thickness || 2;
+      thicknessSlider.className = "thickness-slider";
+
+      const thicknessValueSpan = document.createElement("span");
+      thicknessValueSpan.className = "thickness-value";
+      thicknessValueSpan.textContent = equation.thickness || 2;
+
+      thicknessSlider.addEventListener("input", function () {
+        thicknessValueSpan.textContent = this.value;
+      });
+
+      thicknessDiv.appendChild(thicknessLabel);
+      thicknessDiv.appendChild(thicknessSlider);
+      thicknessDiv.appendChild(thicknessValueSpan);
+
       // Create fill checkbox
       const fillDiv = document.createElement("div");
       fillDiv.className = "equation-edit-fill";
@@ -251,6 +291,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Add everything to the form
       editForm.appendChild(editInput);
       editForm.appendChild(editControlsDiv);
+      editForm.appendChild(thicknessDiv); // Add thickness slider
       editForm.appendChild(buttonsDiv);
 
       // Clear the equation item and add the form
@@ -267,7 +308,8 @@ document.addEventListener("DOMContentLoaded", async () => {
           equationId,
           editInput.value,
           colorPicker.value,
-          fillCheckbox.checked
+          fillCheckbox.checked,
+          parseInt(thicknessSlider.value) // Add thickness parameter
         );
       });
 
@@ -301,7 +343,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       oldEquationId,
       newText,
       newColor,
-      newFill
+      newFill,
+      newThickness // Add thickness parameter
     ) {
       try {
         // Update the equation in the calculator - preserves fixedToViewport setting
@@ -309,11 +352,13 @@ document.addEventListener("DOMContentLoaded", async () => {
           oldEquationId,
           newText,
           newColor,
-          newFill
+          newFill,
+          newThickness // Pass thickness parameter
         );
 
         // Update the data-id attribute
         equationItem.dataset.id = newId;
+        equationItem.dataset.thickness = newThickness; // Update thickness in dataset
 
         // Remove edit mode
         equationItem.classList.remove("edit-mode");
@@ -370,8 +415,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.log("Adding example equations...");
     setTimeout(() => {
       try {
-        calculator.addEquation("sin(x)", "#4361EE", false, true);
-        calculator.addEquation("x^2", "#FF6B6B", false, true);
+        calculator.addEquation("sin(x)", "#4361EE", false, true, 2);
+        calculator.addEquation("x^2", "#FF6B6B", false, true, 2);
         updateEquationsList(calculator.equations);
       } catch (error) {
         console.error("Error adding example equations:", error);

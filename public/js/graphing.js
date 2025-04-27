@@ -1,3 +1,4 @@
+// File: public/js/graphing.js
 // Simplified GraphingCalculator class that works with function-plot.js
 class GraphingCalculator {
   constructor(containerId) {
@@ -35,6 +36,12 @@ class GraphingCalculator {
         // CRITICAL: Enable built-in zooming/panning
         disableZoom: false,
         data: [],
+        // Add custom grid settings for better visibility
+        grid: {
+          verticalLines: true,
+          horizontalLines: true,
+          width: 1.5, // Thicker grid lines
+        },
       });
 
       // Setup window resize handler
@@ -89,19 +96,20 @@ class GraphingCalculator {
     console.log("Zoom controls attached");
   }
 
-  // Completely simplified addEquation method
+  // Updated addEquation method with thickness parameter
   addEquation(
     equation,
     color = "#3366FF",
     fill = false,
-    fixedToViewport = true
+    fixedToViewport = true,
+    thickness = 2 // Default thickness
   ) {
     try {
       // Create a unique ID for the equation
       const id = Date.now().toString();
 
       console.log(
-        `Adding equation: ${equation}, color: ${color}, fill: ${fill}, fixedToViewport: ${fixedToViewport}`
+        `Adding equation: ${equation}, color: ${color}, fill: ${fill}, fixedToViewport: ${fixedToViewport}, thickness: ${thickness}`
       );
 
       // Parse equation to determine if it's parametric
@@ -129,6 +137,7 @@ class GraphingCalculator {
           fnType: "parametric",
           graphType: "polyline",
           color: color,
+          width: thickness, // Add thickness to the graph data
         };
       } else {
         // Handle standard equations
@@ -160,6 +169,7 @@ class GraphingCalculator {
           fn: cleanEquation,
           color: color,
           graphType: "polyline",
+          width: thickness, // Add thickness to the graph data
         };
 
         // Use explicit range for all filled equations
@@ -176,6 +186,7 @@ class GraphingCalculator {
         text: equation, // Save the original equation text for editing
         color,
         fill,
+        thickness, // Store thickness with the equation
         fixedToViewport, // Flag to track if equation should be fixed to viewport
         data: graphData,
       };
@@ -192,8 +203,8 @@ class GraphingCalculator {
     }
   }
 
-  // Updated to preserve fixedToViewport setting
-  updateEquation(id, newEquation, newColor, newFill) {
+  // Updated to preserve fixedToViewport setting and include thickness
+  updateEquation(id, newEquation, newColor, newFill, newThickness) {
     try {
       const index = this.equations.findIndex((eq) => eq.id === id);
       if (index === -1) {
@@ -203,15 +214,22 @@ class GraphingCalculator {
       // Get the original fixedToViewport setting
       const fixedToViewport = this.equations[index].fixedToViewport || false;
 
+      // Use provided thickness or fallback to the original value
+      const thickness =
+        newThickness !== undefined
+          ? newThickness
+          : this.equations[index].thickness || 2;
+
       // Remove the existing equation
       this.equations.splice(index, 1);
 
-      // Add the updated equation with the same fixedToViewport setting
+      // Add the updated equation with the same fixedToViewport setting and thickness
       const newId = this.addEquation(
         newEquation,
         newColor,
         newFill,
-        fixedToViewport
+        fixedToViewport,
+        thickness
       );
 
       // Return the new ID
@@ -249,6 +267,55 @@ class GraphingCalculator {
     } else {
       console.error("Plot instance not initialized");
     }
+  }
+
+  // Enhanced clearAllEquations method to fix residual elements issue
+  clearAllEquations() {
+    // Ensure we completely clear all equations
+    this.equations = [];
+
+    // Reset the plot instance completely
+    if (this.plotInstance) {
+      // Clear the plot data
+      this.plotInstance.options.data = [];
+
+      // Get the container element
+      const container = document.getElementById(this.containerId);
+      if (container) {
+        // Force a complete redraw with empty data
+        try {
+          // Complete reset of the plotting instance
+          this.plotInstance = functionPlot({
+            target: `#${this.containerId}`,
+            width: container.clientWidth,
+            height: container.clientHeight,
+            grid: true,
+            xAxis: {
+              domain: this.xRange,
+              label: "x",
+            },
+            yAxis: {
+              domain: this.yRange,
+              label: "y",
+            },
+            disableZoom: false,
+            data: [],
+            grid: {
+              verticalLines: true,
+              horizontalLines: true,
+              width: 1.5, // Thicker grid lines
+            },
+          });
+        } catch (error) {
+          console.error("Error resetting plot instance:", error);
+          // Fallback to just clearing data and redrawing
+          this.plotInstance.options.data = [];
+          this.plotInstance.draw();
+        }
+      }
+    }
+
+    console.log("All equations cleared");
   }
 
   // Updated zoom controls with direct viewport manipulation
@@ -384,27 +451,6 @@ class GraphingCalculator {
     if (needsRedraw) {
       this.redrawGraph();
     }
-  }
-
-  clearAllEquations() {
-    // Ensure we completely clear all equations
-    this.equations = [];
-
-    // Clear the plot instance data
-    if (this.plotInstance) {
-      this.plotInstance.options.data = [];
-      this.plotInstance.draw();
-    }
-
-    console.log("All equations cleared");
-  }
-
-  // Deprecated - will be replaced by the assistant's applyEquationsToGraph
-  addEquationsFromJSON(jsonData) {
-    console.warn(
-      "Direct addEquationsFromJSON is deprecated, use applyEquationsToGraph instead"
-    );
-    return false;
   }
 
   getEquation(id) {

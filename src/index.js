@@ -23,7 +23,6 @@ app.use((req, res, next) => {
 
 // API routes - matching exactly what the frontend expects
 app.post("/api/chat", aiController.generateEquations);
-app.get("/api/models", aiController.getModels);
 
 // API test endpoint
 app.get("/api/test", (req, res) => {

@@ -1,110 +1,19 @@
 // Complete fixed AI message handling with button for adding equations
 class AIAssistant {
   constructor() {
-    this.models = [];
-    this.selectedModel = null;
     this.chatMessages = [];
     this.loadingMessageId = null; // Track loading message ID
     this.lastParsedEquations = null; // Store last parsed equations from AI
   }
 
   async initialize() {
-    try {
-      // Fetch available models from the API
-      console.log("Fetching available AI models...");
-      const response = await fetch("/api/models");
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch models: ${response.status} ${response.statusText}`
-        );
-      }
-
-      const data = await response.json();
-      console.log("Models fetched:", data);
-
-      this.models = data.models || [];
-
-      if (this.models.length > 0) {
-        // Default to gpt4 as it's more reliable
-        this.selectedModel = "gpt4";
-        console.log("Default model selected:", this.selectedModel);
-      } else {
-        console.warn("No models available from API");
-      }
-
-      // Populate model selector
-      this.populateModelSelector();
-
-      return true;
-    } catch (error) {
-      console.error("Error initializing AI assistant:", error);
-      this.addMessage("ai", `Error initializing: ${error.message}`);
-      return false;
-    }
-  }
-
-  populateModelSelector() {
-    const selector = document.getElementById("model-select");
-    if (!selector) {
-      console.error("Model selector element not found");
-      return;
-    }
-
-    // Clear existing options
-    selector.innerHTML = "";
-
-    // Add options for each model
-    if (this.models.length === 0) {
-      // Add a placeholder option if no models are available
-      const option = document.createElement("option");
-      option.value = "";
-      option.textContent = "No models available";
-      option.disabled = true;
-      selector.appendChild(option);
-      console.warn("No models available to populate selector");
-    } else {
-      console.log(
-        "Populating model selector with",
-        this.models.length,
-        "models"
-      );
-      this.models.forEach((model) => {
-        const option = document.createElement("option");
-        option.value = model.id;
-        option.textContent = model.name;
-        selector.appendChild(option);
-      });
-    }
-
-    // Set selected model
-    if (this.selectedModel) {
-      selector.value = this.selectedModel;
-    }
-
-    // Set change event handler
-    selector.addEventListener("change", (e) => {
-      this.selectedModel = e.target.value;
-      console.log("Model changed to:", this.selectedModel);
-    });
+    // No model fetching or selector needed
+    return true;
   }
 
   async generateEquations(prompt) {
     try {
       console.log("Generating equations for prompt:", prompt);
-
-      // Check if we have a model selected
-      if (!this.selectedModel && this.models.length > 0) {
-        this.selectedModel = "gpt4";
-        console.log(
-          "No model was selected, using default:",
-          this.selectedModel
-        );
-      }
-
-      if (!this.selectedModel) {
-        throw new Error("No AI model available");
-      }
 
       // Add user message to chat
       this.addMessage("user", prompt);
@@ -112,7 +21,7 @@ class AIAssistant {
       // Show loading state and store the ID
       this.loadingMessageId = this.addMessage("ai", "Generating equations...");
 
-      console.log("Sending request to API with model:", this.selectedModel);
+      // Always use the single backend model, no model param
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
@@ -120,7 +29,6 @@ class AIAssistant {
         },
         body: JSON.stringify({
           message: prompt,
-          model: this.selectedModel,
         }),
       });
 

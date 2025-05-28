@@ -69,30 +69,18 @@ EXAMPLES OF CORRECT SIMPLE EXPRESSIONS:
 KEEP YOUR EXPRESSIONS SIMPLE WITHOUT CONDITIONALS OR COMPLEX OPERATORS.
 RETURN ONLY THE JSON. DO NOT ADD EXPLANATIONS BEFORE OR AFTER.`;
 
-// Replace OpenAI client instantiation with NVIDIA NIM endpoint and API key
-defineNvidiaClient = () => {
-  return new OpenAI({
+// Remove AVAILABLE_MODELS and model selection logic
+// Only use the NVIDIA NIM model: meta/llama-4-maverick-17b-128e-instruct
+
+const callAI = async (message) => {
+  console.log(`[Debug] Starting API call with NVIDIA NIM model`);
+
+  const client = new OpenAI({
     baseURL: "https://integrate.api.nvidia.com/v1",
     apiKey: process.env.NVIDIA_NIM_API_KEY,
   });
-};
 
-// Update AVAILABLE_MODELS to use NVIDIA NIM model IDs
-const AVAILABLE_MODELS = {
-  qwen: {
-    id: "qwen/qwq-32b",
-    name: "Qwen 32B",
-  },
-  // Add more NVIDIA NIM models here as needed
-};
-
-// Function to call AI API using the NVIDIA NIM client
-const callAI = async (message, modelChoice = "qwen") => {
-  console.log(`[Debug] Starting API call with model choice: ${modelChoice}`);
-
-  const client = defineNvidiaClient();
-  const selectedModel =
-    AVAILABLE_MODELS[modelChoice]?.id || AVAILABLE_MODELS.qwen.id;
+  const selectedModel = "meta/llama-4-maverick-17b-128e-instruct";
   console.log(`Using model: ${selectedModel}`);
 
   try {
@@ -117,9 +105,9 @@ const callAI = async (message, modelChoice = "qwen") => {
     return {
       content: response.choices[0].delta?.content || response.choices[0].message?.content,
       model: {
-        requested: modelChoice,
+        requested: selectedModel,
         actual: selectedModel,
-        displayName: AVAILABLE_MODELS[modelChoice]?.name || "Unknown Model",
+        displayName: "Llama-4 Maverick 17B",
       },
     };
   } catch (error) {
@@ -127,25 +115,24 @@ const callAI = async (message, modelChoice = "qwen") => {
 
     if (error.message.includes("timeout")) {
       throw new Error(
-        "The model is taking too long to respond. Try a shorter query or switch to a different model."
+        "The model is taking too long to respond. Try a shorter query."
       );
     }
     throw error;
   }
 };
 
-// Generate equations with AI
+// Update generateEquations to not expect a model parameter
 const generateEquations = async (req, res) => {
   console.log("[Debug] Received API request:", {
     path: req.path,
     method: req.method,
   });
 
-  const { message, model } = req.body;
+  const { message } = req.body;
 
   console.log("[Debug] Request parameters:", {
     messageLength: message ? message.length : 0,
-    model,
   });
 
   if (!message) {
@@ -153,7 +140,7 @@ const generateEquations = async (req, res) => {
   }
 
   try {
-    const response = await callAI(message, model);
+    const response = await callAI(message);
     res.json({
       response: response.content,
       model: response.model,
@@ -164,21 +151,11 @@ const generateEquations = async (req, res) => {
     res.status(500).json({
       error: errorMessage,
       model: {
-        requested: model,
-        displayName: AVAILABLE_MODELS[model]?.name || "Unknown Model",
+        requested: "meta/llama-4-maverick-17b-128e-instruct",
+        displayName: "Llama-4 Maverick 17B",
       },
     });
   }
 };
 
-// Get available models
-const getModels = (req, res) => {
-  res.json({
-    models: Object.entries(AVAILABLE_MODELS).map(([key, value]) => ({
-      id: key,
-      name: value.name,
-    })),
-  });
-};
-
-module.exports = { generateEquations, getModels };
+module.exports = { generateEquations };

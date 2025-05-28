@@ -69,51 +69,38 @@ EXAMPLES OF CORRECT SIMPLE EXPRESSIONS:
 KEEP YOUR EXPRESSIONS SIMPLE WITHOUT CONDITIONALS OR COMPLEX OPERATORS.
 RETURN ONLY THE JSON. DO NOT ADD EXPLANATIONS BEFORE OR AFTER.`;
 
-// Define available models with correct IDs
-const AVAILABLE_MODELS = {
-  gpt4: {
-    id: "gpt-4o",
-    name: "GPT-4o",
-  },
-  deepseek: {
-    id: "DeepSeek-R1",
-    name: "DeepSeek R1",
-  },
-  "llama-3.1": {
-    id: "Meta-Llama-3.1-405B-Instruct",
-    name: "Llama 3.1 (405B)",
-  },
-  mistral: {
-    id: "Mistral-Large-2411",
-    name: "Mistral Large",
-  },
-  phi4: {
-    id: "Phi-4",
-    name: "Phi-4",
-  },
+// Replace OpenAI client instantiation with NVIDIA NIM endpoint and API key
+defineNvidiaClient = () => {
+  return new OpenAI({
+    baseURL: "https://integrate.api.nvidia.com/v1",
+    apiKey: process.env.NVIDIA_NIM_API_KEY,
+  });
 };
 
-// Function to call AI API using the OpenAI client
-const callAI = async (message, modelChoice = "gpt4") => {
+// Update AVAILABLE_MODELS to use NVIDIA NIM model IDs
+const AVAILABLE_MODELS = {
+  qwen: {
+    id: "qwen/qwq-32b",
+    name: "Qwen 32B",
+  },
+  // Add more NVIDIA NIM models here as needed
+};
+
+// Function to call AI API using the NVIDIA NIM client
+const callAI = async (message, modelChoice = "qwen") => {
   console.log(`[Debug] Starting API call with model choice: ${modelChoice}`);
 
-  // Initialize the OpenAI client with correct baseURL
-  const client = new OpenAI({
-    baseURL: "https://models.inference.ai.azure.com",
-    apiKey: process.env.GITHUB_TOKEN,
-  });
-
+  const client = defineNvidiaClient();
   const selectedModel =
-    AVAILABLE_MODELS[modelChoice]?.id || AVAILABLE_MODELS.gpt4.id;
+    AVAILABLE_MODELS[modelChoice]?.id || AVAILABLE_MODELS.qwen.id;
   console.log(`Using model: ${selectedModel}`);
 
   try {
     console.log("[Debug] Request structure:", {
       model: selectedModel,
-      tokensProvided: process.env.GITHUB_TOKEN ? "Yes" : "No",
+      tokensProvided: process.env.NVIDIA_NIM_API_KEY ? "Yes" : "No",
     });
 
-    // Use the new client.chat.completions.create method
     const response = await client.chat.completions.create({
       messages: [
         { role: "system", content: systemPrompt },
@@ -128,7 +115,7 @@ const callAI = async (message, modelChoice = "gpt4") => {
     console.log(`[Debug] Successfully received response`);
 
     return {
-      content: response.choices[0].message.content,
+      content: response.choices[0].delta?.content || response.choices[0].message?.content,
       model: {
         requested: modelChoice,
         actual: selectedModel,
